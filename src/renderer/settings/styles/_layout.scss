@@ -1,0 +1,418 @@
+@use "variables" as *;
+
+.titlebar {
+	position: relative;
+	height: $tb-h;
+	background: var(--c-bg2);
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	-webkit-app-region: drag;
+	flex-shrink: 0;
+}
+
+.tb-titlegroup {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	pointer-events: none;
+}
+
+.tb-icon {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+	background-image: url("../../../assets/nm-icons/nm-tray.png");
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	pointer-events: none;
+
+	.condemned & {
+		background-image: url("../../../assets/nm-icons/nm-tray-condemned.png");
+	}
+}
+
+.tb-title {
+	font-family: $font-heading-large;
+	font-weight: 700;
+	font-size: 14px;
+	color: var(--c-muted);
+	pointer-events: none;
+	white-space: nowrap;
+	margin-top: 1px;
+}
+
+.tb-btn {
+	-webkit-app-region: no-drag;
+	width: 46px;
+	height: $tb-h;
+	background: none;
+	border: none;
+	color: var(--c-text);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	flex-shrink: 0;
+
+	svg {
+		width: 10px;
+		height: 10px;
+		pointer-events: none;
+	}
+
+	&:hover {
+		background: var(--c-tb-btn-hover);
+	}
+}
+
+.tb-close {
+	&:hover {
+		background: $close-hover !important;
+	}
+}
+
+.layout {
+	display: flex;
+	height: calc(100vh - #{$tb-h});
+	background-color: var(--c-bg2);
+}
+
+.sidebar {
+	width: 165px;
+	flex-shrink: 0;
+	background: var(--c-bg2);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.sidebar-nav {
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+	flex: 1;
+	scrollbar-width: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+.nav-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 14px;
+	cursor: pointer;
+	color: var(--c-muted);
+	font-family: $font-heading-large;
+	font-weight: 800;
+	font-size: 12px;
+	text-transform: uppercase;
+	border-radius: 10px;
+	transition:
+		color 0.15s,
+		background 0.15s;
+
+	.nav-item-icon {
+		flex-shrink: 0;
+		opacity: 0.85;
+	}
+
+	&:hover {
+		color: var(--c-text);
+		background: var(--c-tile-hover);
+	}
+
+	&.active {
+		color: var(--c-text);
+		background: var(--c-tile-hover);
+
+		&:hover {
+			cursor: unset;
+		}
+	}
+}
+
+.sidebar-footer {
+	margin-top: auto;
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+}
+
+.ver-card {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 10px;
+	border-radius: 12px;
+	background: var(--c-panel);
+}
+
+.ver-row {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	font-family: "Space Mono", monospace;
+}
+
+.ver-name {
+	font-size: 10px;
+	color: var(--c-muted);
+	opacity: 0.7;
+	white-space: nowrap;
+}
+
+.ver-val {
+	font-size: 10px;
+	color: var(--c-tag-builtin);
+	white-space: nowrap;
+	text-align: right;
+}
+
+.content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	overflow-y: auto;
+	padding: 20px;
+	background-color: var(--c-bg);
+	border-radius: $r 0 0 $r;
+
+	&::before,
+	&::after {
+		content: "";
+		position: sticky;
+		z-index: 999;
+		flex: 0 0 auto;
+		align-self: stretch;
+		height: 24px;
+		pointer-events: none;
+	}
+
+	&::before {
+		top: -20px;
+		margin: -20px -20px 0;
+		background: linear-gradient(to bottom, var(--c-bg), transparent);
+	}
+
+	&::after {
+		bottom: -20px;
+		margin: 0 -20px -20px;
+		background: linear-gradient(to top, var(--c-bg), transparent);
+	}
+
+	&::-webkit-scrollbar {
+		width: 5px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: var(--c-panel);
+		border-radius: 10px;
+
+		&:hover {
+			background: var(--c-tile-hover);
+		}
+	}
+}
+
+// Loading skeleton
+.skel {
+	position: relative;
+	overflow: hidden;
+	background: var(--c-skel-base);
+	border-radius: 6px;
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		transform: translateX(-100%);
+		background: linear-gradient(
+			90deg,
+			transparent,
+			var(--c-skel-shine),
+			transparent
+		);
+		animation: skel-shimmer 1.4s ease-in-out infinite;
+	}
+}
+
+@keyframes skel-shimmer {
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+// Sidebar skeleton nav items
+.skel-nav {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 14px;
+}
+
+.skel-nav-icon {
+	width: 18px;
+	height: 18px;
+	border-radius: 5px;
+	flex-shrink: 0;
+}
+
+.skel-nav-label {
+	height: 11px;
+	flex: 1;
+	max-width: 90px;
+	border-radius: 5px;
+}
+
+// Content skeleton panel
+.skel-panel {
+	width: 100%;
+	max-width: 600px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	animation: fadeIn 0.16s ease;
+}
+
+.skel-sec {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 18px 0 10px;
+	padding: 0 13px 10px 10px;
+	border-bottom: 1px solid var(--c-line);
+
+	&:first-child {
+		margin-top: 0;
+	}
+}
+
+.skel-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.skel-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	height: 56.8px;
+	padding: 11px 15px;
+	background: var(--c-panel);
+	border-radius: 4px;
+
+	&:first-child {
+		border-radius: $row-r $row-r 4px 4px;
+	}
+
+	&:last-child {
+		border-radius: 4px 4px $row-r $row-r;
+	}
+}
+
+.skel-row-text {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.skel-line {
+	height: 13px;
+	border-radius: 5px;
+
+	&.skel-sub {
+		height: 11px;
+		opacity: 0.7;
+	}
+}
+
+.skel-switch {
+	width: 38px;
+	height: 21px;
+	border-radius: 11px;
+	flex-shrink: 0;
+}
+
+.skel-field {
+	width: 110px;
+	height: 30px;
+	border-radius: 10px;
+	flex-shrink: 0;
+}
+
+.skel-w30 {
+	width: 30%;
+}
+.skel-w35 {
+	width: 35%;
+}
+.skel-w40 {
+	width: 40%;
+}
+.skel-w45 {
+	width: 45%;
+}
+.skel-w50 {
+	width: 50%;
+}
+.skel-w55 {
+	width: 55%;
+}
+.skel-w60 {
+	width: 60%;
+}
+.skel-w65 {
+	width: 65%;
+}
+.skel-w70 {
+	width: 70%;
+}
+.skel-w75 {
+	width: 75%;
+}
+
+.tab-panel {
+	display: none;
+	width: 100%;
+	max-width: 600px;
+
+	&.active {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		animation: fadeIn 0.16s ease;
+	}
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

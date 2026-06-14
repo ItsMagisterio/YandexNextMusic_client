@@ -1,0 +1,600 @@
+import fs from "fs";
+import path from "path";
+import { BrowserWindow, shell } from "electron";
+
+import {
+	GITHUB_OWNER,
+	GITHUB_REPO,
+	httpsGet,
+	normalizeGitUrl,
+	loadGitmodules,
+	getSection,
+	getFolderMeta,
+	getRemoteHeadCommit,
+	getLatestNmRelease,
+	fetchReadme,
+	pLimit,
+} from "./github.js";
+
+import {
+	downloadTree,
+	downloadAndExtractTarGz,
+	downloadSourceZip,
+} from "./download.js";
+
+import { readOldHandleEvents, applyHandleEventsMerge } from "./handleEvents.js";
+
+import {
+	addonsDirectory,
+	getLocalReleaseTag,
+	getLocalCommitHash,
+	installedEntries,
+	fsToggle,
+	fsDelete,
+	getCustomEntries,
+} from "./filesystem.js";
+
+import { getPaths } from "../../config.js";
+import { getCurrentLangCode } from "../langManager.js";
+import { getConfig } from "../configManager.js";
+function skelCard() {
+	return `<div class="card"><div class="card-top"><div class="skel" style="width:44px;height:44px;border-radius:9px;flex-shrink:0"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px;padding-top:2px"><div class="skel" style="width:62%"></div><div class="skel" style="width:36%;height:10px"></div></div></div><div class="skel" style="height:33px;border-radius:8px"></div></div>`;
+}
+
+function skels(n) {
+	return Array.from({ length: n }, skelCard).join("");
+}
+
+const json = (d, status = 200) => ({
+	status,
+	headers: { "Content-Type": "application/json" },
+	body: Buffer.from(JSON.stringify(d)),
+});
+
+const text = (t, ct = "text/plain; charset=utf-8") => ({
+	status: 200,
+	headers: { "Content-Type": ct },
+	body: Buffer.from(t, "utf8"),
+});
+
+const binary = (buf, ct) => ({
+	status: 200,
+	headers: { "Content-Type": ct },
+	body: buf,
+});
+
+const notFound = () => ({
+	status: 404,
+	headers: {},
+	body: Buffer.alloc(0),
+});
+
+const IMG_MIME = {
+	".png": "image/png",
+	".jpg": "image/jpeg",
+	".jpeg": "image/jpeg",
+	".gif": "image/gif",
+	".webp": "image/webp",
+	".svg": "image/svg+xml",
+};
+
+export async function handleRequest(method, urlPath, qp, getBody, PUBLIC_DIR) {
+	if (method === "GET" && (urlPath === "/" || urlPath === "")) {
+		const htmlPath = path.join(PUBLIC_DIR, "index.html");
+		let html = fs.readFileSync(htmlPath, "utf8");
+		html = html
+			.replace("SKELS_ADDONS", skels(6))
+			.replace("SKELS_THEMES", skels(6));
+		return text(html, "text/html; charset=utf-8");
+	}
+
+	const MIME = {
+		".html": "text/html; charset=utf-8",
+		".css": "text/css",
+		".js": "application/javascript",
+		".ttf": "font/ttf",
+	};
+
+	if (method === "GET" && urlPath.startsWith("/assets/fonts/")) {
+		const fontsDir = path.resolve(PUBLIC_DIR, "../../../assets/fonts");
+		const filePath = path.join(
+			fontsDir,
+			urlPath.slice("/assets/fonts/".length),
+		);
+
+		if (fs.existsSync(filePath)) {
+			const ext = path.extname(filePath).toLowerCase();
+			return binary(
+				fs.readFileSync(filePath),
+				MIME[ext] || "application/octet-stream",
+			);
+		}
+
+		return notFound();
+	}
+
+	if (method === "GET" && urlPath.startsWith("/public/")) {
+		const filePath = path.join(PUBLIC_DIR, urlPath.slice("/public/".length));
+
+		if (fs.existsSync(filePath)) {
+			const ext = path.extname(filePath).toLowerCase();
+			return binary(
+				fs.readFileSync(filePath),
+				MIME[ext] || "application/octet-stream",
+			);
+		}
+
+		return notFound();
+	}
+
+	if (method === "GET" && urlPath === "/api/installed")
+		return json(installedEntries());
+
+	if (method === "GET" && urlPath === "/api/custom") {
+		try {
+			const known = qp.known ? JSON.parse(qp.known) : [];
+			return json(getCustomEntries(known));
+		} catch (e) {
+			return json({ error: e.message }, 500);
+		}
+	}
+
+	if (method === "GET" && urlPath.startsWith("/api/section/")) {
+		const section = urlPath.slice("/api/section/".length);
+		const token = getConfig().github?.accessToken || undefined;
+
+		try {
+			const items = await getSection(GITHUB_OWNER, GITHUB_REPO, section, token);
+			const result = await pLimit(
+				items.map((f) => async () => {
+					const meta = await getFolderMeta(GITHUB_OWNER, GITHUB_REPO, f, token);
+					return {
+						name: f.name,
+						path: f.path,
+						submodule: f.submodule,
+						subUrl: f.subUrl,
+						...meta,
+					};
+				}),
+				3,
+			);
+
+			return json(result);
+		} catch (e) {
+			return json({ error: e.message }, 500);
+		}
+	}
+
+	if (method === "GET" && urlPath === "/api/logo") {
+		if (!qp.url) return notFound();
+
+		try {
+			const r = await httpsGet(qp.url);
+			return binary(r.body, r.headers["content-type"] || "image/png");
+		} catch {
+			return notFound();
+		}
+	}
+
+	if (method === "GET" && urlPath === "/api/local-logo") {
+		try {
+			const { name, file } = qp;
+			if (!name || !file) return notFound();
+
+			const raw =
+				fs
+					.readdirSync(addonsDirectory)
+					.find((n) => n.replace(/^!/, "") === name) || name;
+
+			const filePath = path.join(addonsDirectory, raw, file);
+
+			if (!fs.existsSync(filePath)) return notFound();
+
+			return binary(
+				fs.readFileSync(filePath),
+				IMG_MIME[path.extname(file).toLowerCase()] || "image/png",
+			);
+		} catch {
+			return notFound();
+		}
+	}
+
+	if (method === "GET" && urlPath === "/api/local-readme") {
+		try {
+			const { name, file } = qp;
+			if (!name || !file) return notFound();
+
+			const raw =
+				fs
+					.readdirSync(addonsDirectory)
+					.find((n) => n.replace(/^!/, "") === name) || name;
+
+			const filePath = path.join(addonsDirectory, raw, file);
+
+			if (!fs.existsSync(filePath)) return notFound();
+
+			return text(fs.readFileSync(filePath, "utf8"));
+		} catch {
+			return notFound();
+		}
+	}
+
+	if (method === "GET" && urlPath === "/api/readme") {
+		if (!qp.url) return notFound();
+
+		try {
+			const md = await fetchReadme(qp.url);
+			return text(md);
+		} catch {
+			return notFound();
+		}
+	}
+
+	if (method === "POST" && urlPath === "/api/download") {
+		try {
+			const {
+				name,
+				folderPath,
+				submodule,
+				subUrl,
+				releaseCache = {},
+			} = JSON.parse(await getBody());
+
+			if (!name) throw new Error("Missing name");
+			const dest = path.join(addonsDirectory, name);
+			const token = getConfig().github?.accessToken || undefined;
+
+			const oldHandleEvents = readOldHandleEvents(dest);
+
+			if (submodule && subUrl) {
+				const normalized = normalizeGitUrl(subUrl);
+				const m =
+					normalized &&
+					normalized.match(
+						/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?(?:\/.*)?$/,
+					);
+
+				if (!m) throw new Error("Cannot parse submodule URL: " + subUrl);
+				const [, subOwner, subRepo] = m;
+
+				const cacheKey = `${subOwner}/${subRepo}`;
+				const releaseCacheKey = cacheKey.toLowerCase();
+				let nmRelease = null;
+				let apiAvailable = true;
+				const hasCachedRelease = !!releaseCache[releaseCacheKey];
+
+				try {
+					nmRelease = await getLatestNmRelease(subOwner, subRepo, token);
+				} catch {
+					apiAvailable = false;
+				}
+
+				if (!apiAvailable) {
+					if (hasCachedRelease) {
+						throw new Error(
+							`GitHub releases API is unavailable. Skipping "${name}" because it previously had a release build. Try again later.`,
+						);
+					}
+				}
+
+				if (nmRelease) {
+					fs.mkdirSync(dest, { recursive: true });
+					await downloadAndExtractTarGz(nmRelease.downloadUrl, dest);
+					fs.writeFileSync(
+						path.join(dest, ".git-release"),
+						nmRelease.tag,
+						"utf8",
+					);
+				} else {
+					// API works but no nm.tar.gz release (never had one, or author removed it)
+					fs.mkdirSync(dest, { recursive: true });
+					await downloadSourceZip(subOwner, subRepo, dest);
+					try {
+						const sha = await getRemoteHeadCommit(subOwner, subRepo, token);
+						if (sha)
+							fs.writeFileSync(path.join(dest, ".git-commit"), sha, "utf8");
+					} catch {}
+				}
+
+				applyHandleEventsMerge(dest, oldHandleEvents);
+
+				return json({
+					ok: true,
+					releaseInfo: {
+						key: releaseCacheKey,
+						hasRelease: !!nmRelease,
+					},
+				});
+			} else {
+				const gm = await loadGitmodules(GITHUB_OWNER, GITHUB_REPO);
+				await downloadTree(folderPath, dest, GITHUB_OWNER, GITHUB_REPO, gm);
+			}
+
+			applyHandleEventsMerge(dest, oldHandleEvents);
+
+			return json({ ok: true });
+		} catch (e) {
+			return json({ ok: false, error: e.message }, 500);
+		}
+	}
+
+	if (method === "GET" && urlPath === "/api/check-update") {
+		try {
+			const { name, subUrl } = qp;
+			if (!name || !subUrl) return json({ hasUpdate: false });
+			const normalized = normalizeGitUrl(decodeURIComponent(subUrl));
+
+			const m =
+				normalized &&
+				normalized.match(/github\.com\/([^/]+)\/([^/]+?)(?:\.git)?(?:\/.*)?$/);
+
+			if (!m) return json({ hasUpdate: false });
+			const [, owner, repo] = m;
+
+			const token = getConfig().github?.accessToken || undefined;
+
+			const localTag = getLocalReleaseTag(name);
+			if (localTag) {
+				const nmRelease = await getLatestNmRelease(owner, repo, token);
+				if (!nmRelease) return json({ hasUpdate: false });
+				const hasUpdate = nmRelease.tag !== localTag;
+
+				return json({
+					hasUpdate,
+					remoteHash: nmRelease.tag,
+					localHash: localTag,
+				});
+			}
+
+			const [remoteHash, localHash] = await Promise.all([
+				getRemoteHeadCommit(owner, repo, token),
+				Promise.resolve(getLocalCommitHash(name)),
+			]);
+
+			const hasUpdate = !!remoteHash && !!localHash && remoteHash !== localHash;
+
+			return json({ hasUpdate, remoteHash, localHash });
+		} catch (e) {
+			return json({ hasUpdate: false, error: e.message });
+		}
+	}
+
+	if (method === "POST" && urlPath === "/api/toggle") {
+		try {
+			const { name } = JSON.parse(await getBody());
+			const enabled = fsToggle(name);
+			return json({ ok: true, enabled });
+		} catch (e) {
+			return json({ ok: false, error: e.message }, 500);
+		}
+	}
+
+	if (method === "POST" && urlPath === "/api/delete") {
+		try {
+			const { name } = JSON.parse(await getBody());
+			fsDelete(name);
+			return json({ ok: true });
+		} catch (e) {
+			return json({ ok: false, error: e.message }, 500);
+		}
+	}
+
+	if (method === "GET" && urlPath === "/api/lang") {
+		try {
+			const { languagesDirectory } = getPaths();
+			const config = getConfig();
+			const langCode =
+				config?.programSettings?.language || getCurrentLangCode() || "en";
+
+			console.log(
+				"[Store /api/lang] langCode:",
+				langCode,
+				"dir:",
+				languagesDirectory,
+			);
+
+			const langFile = path.join(languagesDirectory, `${langCode}.json`);
+
+			if (fs.existsSync(langFile)) {
+				console.log("[Store /api/lang] serving:", langFile);
+				return text(
+					fs.readFileSync(langFile, "utf-8"),
+					"application/json; charset=utf-8",
+				);
+			}
+
+			const enFile = path.join(languagesDirectory, "en.json");
+
+			if (fs.existsSync(enFile)) {
+				console.log("[Store /api/lang] fallback to en:", enFile);
+				return text(
+					fs.readFileSync(enFile, "utf-8"),
+					"application/json; charset=utf-8",
+				);
+			}
+
+			console.warn(
+				"[Store /api/lang] no lang file found in:",
+				languagesDirectory,
+			);
+
+			return json({ error: "Language file not found" }, 404);
+		} catch (e) {
+			console.error("[Store /api/lang] error:", e.message);
+			return json({ error: e.message }, 500);
+		}
+	}
+
+	if (method === "GET" && urlPath === "/api/theme-vars") {
+		try {
+			const wins = BrowserWindow.getAllWindows();
+
+			const mainWin =
+				wins.find((w) => {
+					const url = w.webContents.getURL();
+					return (
+						url.includes("music.yandex") || url.includes("music.yandex.ru")
+					);
+				}) ||
+				wins.find((w) => {
+					const url = w.webContents.getURL();
+					return !url.includes("nextstore://") && !url.startsWith("file://");
+				}) ||
+				null;
+
+			if (!mainWin) return json({});
+
+			const vars = await mainWin.webContents.executeJavaScript(`
+            (() => {
+                const tmp = document.createElement('div');
+                const parentStyles = getComputedStyle(document.body);
+                const vars = {};
+                for (const prop of parentStyles) {
+                    if (prop.startsWith('--ym-')) {
+                        tmp.style.color = \`var(\${prop})\`;
+                        document.body.appendChild(tmp);
+                        vars[prop] = getComputedStyle(tmp).color;
+                        document.body.removeChild(tmp);
+                    }
+                }
+                return vars;
+            })()`);
+			return json(vars);
+		} catch {
+			return json({});
+		}
+	}
+
+	if (method === "POST" && urlPath === "/api/open-url") {
+		try {
+			const { url } = JSON.parse(await getBody());
+			if (!url || !url.startsWith("https://")) throw new Error("Invalid URL");
+			await shell.openExternal(url);
+			return json({ ok: true });
+		} catch (e) {
+			return json({ ok: false, error: e.message }, 500);
+		}
+	}
+
+	if (method === "POST" && urlPath === "/api/reload") {
+		try {
+			const wins = BrowserWindow.getAllWindows();
+
+			const mainWin =
+				wins.find((w) => w.webContents.getURL().includes("music.yandex")) ||
+				wins.find((w) => {
+					const u = w.webContents.getURL();
+					return !u.startsWith("nextstore://") && !u.startsWith("file://");
+				}) ||
+				wins[0];
+
+			if (mainWin) mainWin.webContents.reload();
+
+			return json({ ok: true });
+		} catch (e) {
+			return json({ ok: false, error: e.message }, 500);
+		}
+	}
+
+	if (method === "GET" && urlPath === "/api/check-handle-events") {
+		try {
+			const { name } = qp;
+			if (!name) return json({ exists: false });
+
+			const raw =
+				fs
+					.readdirSync(addonsDirectory)
+					.find(
+						(n) => n.replace(/^!/, "").toLowerCase() === name.toLowerCase(),
+					) || null;
+
+			if (!raw) return json({ exists: false });
+			const filePath = path.join(addonsDirectory, raw, "handleEvents.json");
+
+			return json({ exists: fs.existsSync(filePath), path: filePath });
+		} catch (e) {
+			return json({ exists: false, error: e.message });
+		}
+	}
+
+	if (method === "GET" && urlPath === "/api/read-handle-events") {
+		try {
+			const { name } = qp;
+			if (!name) throw new Error("Missing name");
+
+			const raw =
+				fs
+					.readdirSync(addonsDirectory)
+					.find(
+						(n) => n.replace(/^!/, "").toLowerCase() === name.toLowerCase(),
+					) || null;
+
+			if (!raw) throw new Error("Addon not found: " + name);
+			const filePath = path.join(addonsDirectory, raw, "handleEvents.json");
+
+			if (!fs.existsSync(filePath))
+				throw new Error("handleEvents.json not found");
+
+			const content = fs.readFileSync(filePath, "utf8");
+
+			return json({ ok: true, content });
+		} catch (e) {
+			return json({ ok: false, error: e.message }, 500);
+		}
+	}
+
+	if (method === "POST" && urlPath === "/api/save-handle-events") {
+		try {
+			const { name, content } = JSON.parse(await getBody());
+			if (!name) throw new Error("Missing name");
+			JSON.parse(content);
+
+			const raw =
+				fs
+					.readdirSync(addonsDirectory)
+					.find(
+						(n) => n.replace(/^!/, "").toLowerCase() === name.toLowerCase(),
+					) || null;
+
+			if (!raw) throw new Error("Addon not found: " + name);
+			const filePath = path.join(addonsDirectory, raw, "handleEvents.json");
+
+			if (!fs.existsSync(filePath))
+				throw new Error("handleEvents.json not found");
+
+			fs.writeFileSync(filePath, content, "utf8");
+
+			return json({ ok: true });
+		} catch (e) {
+			return json({ ok: false, error: e.message }, 500);
+		}
+	}
+
+	if (method === "POST" && urlPath === "/api/open-handle-events") {
+		try {
+			const { name } = JSON.parse(await getBody());
+			if (!name) throw new Error("Missing name");
+
+			const raw =
+				fs
+					.readdirSync(addonsDirectory)
+					.find(
+						(n) => n.replace(/^!/, "").toLowerCase() === name.toLowerCase(),
+					) || null;
+
+			if (!raw) throw new Error("Addon not found: " + name);
+			const filePath = path.join(addonsDirectory, raw, "handleEvents.json");
+
+			if (!fs.existsSync(filePath))
+				throw new Error("handleEvents.json not found");
+
+			await shell.openPath(filePath);
+
+			return json({ ok: true });
+		} catch (e) {
+			return json({ ok: false, error: e.message }, 500);
+		}
+	}
+
+	return notFound();
+}
