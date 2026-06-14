@@ -1,5 +1,4 @@
 import { app, BrowserWindow, protocol, shell } from "electron";
-import { checkGitHubStar } from "./lib/githubStarAuth.js";
 import { loadConfig } from "./lib/configManager.js";
 import path from "path";
 
@@ -35,26 +34,26 @@ app.commandLine.appendSwitch("js-flags", "--max-old-space-size=512");
 app.commandLine.appendSwitch("disk-cache-size", String(50 * 1024 * 1024));
 
 if (process.platform === "linux") {
-	app.commandLine.appendSwitch("disable-dev-shm-usage");
+        app.commandLine.appendSwitch("disable-dev-shm-usage");
 }
 
 const disabledFeatures = [
-	"SpareRendererForSitePerProcess",
-	"BackForwardCache",
-	"MediaRouter",
-	"Translate",
-	"AutofillServerCommunication",
+        "SpareRendererForSitePerProcess",
+        "BackForwardCache",
+        "MediaRouter",
+        "Translate",
+        "AutofillServerCommunication",
 ];
 
 const enabledFeatures = [
-	// CPU: aggressively throttle JS timers in background tabs/hidden windows
-	"IntensiveWakeUpThrottling",
-	// CPU: throttle unimportant frame timers (cross-origin iframes etc.)
-	"ThrottleUnimportantFrameTimers",
+        // CPU: aggressively throttle JS timers in background tabs/hidden windows
+        "IntensiveWakeUpThrottling",
+        // CPU: throttle unimportant frame timers (cross-origin iframes etc.)
+        "ThrottleUnimportantFrameTimers",
 ];
 
 if (process.platform === "linux") {
-	disabledFeatures.push("WaylandWpColorManagerV1");
+        disabledFeatures.push("WaylandWpColorManagerV1");
 }
 
 app.commandLine.appendSwitch("disable-features", disabledFeatures.join(","));
@@ -63,130 +62,123 @@ app.commandLine.appendSwitch("force-color-profile", "srgb");
 
 // Register custom protocol BEFORE ready
 protocol.registerSchemesAsPrivileged([
-	{
-		scheme: "nextstore",
-		privileges: {
-			standard: true,
-			secure: true,
-			supportFetchAPI: true,
-			corsEnabled: true,
-		},
-	},
+        {
+                scheme: "nextstore",
+                privileges: {
+                        standard: true,
+                        secure: true,
+                        supportFetchAPI: true,
+                        corsEnabled: true,
+                },
+        },
 ]);
 
 // Allow self-signed certificates
 app.on(
-	"certificate-error",
-	(event, _webContents, _url, _error, _cert, callback) => {
-		event.preventDefault();
-		callback(true);
-	},
+        "certificate-error",
+        (event, _webContents, _url, _error, _cert, callback) => {
+                event.preventDefault();
+                callback(true);
+        },
 );
 
 // Single Instance Lock
 const isSingleInstance = app.requestSingleInstanceLock();
 
 if (!isSingleInstance) {
-	app.quit();
-	process.exit(0);
+        app.quit();
+        process.exit(0);
 }
 
 // second instance focus
 app.on("second-instance", () => {
-	if (!global.mainWindow) return;
+        if (!global.mainWindow) return;
 
-	const win = global.mainWindow;
+        const win = global.mainWindow;
 
-	if (win.isMinimized()) win.restore();
-	win.show();
-	win.focus();
+        if (win.isMinimized()) win.restore();
+        win.show();
+        win.focus();
 });
 
 // Window Lifecycle
 app.on("window-all-closed", () => {
-	if (process.platform !== "darwin") app.quit();
+        if (process.platform !== "darwin") app.quit();
 });
 
 app.on("activate", async () => {
-	const hasNoWindows = BrowserWindow.getAllWindows().length === 0;
+        const hasNoWindows = BrowserWindow.getAllWindows().length === 0;
 
-	if (hasNoWindows && global.mainWindow) {
-		global.mainWindow = createWindow();
-	}
+        if (hasNoWindows && global.mainWindow) {
+                global.mainWindow = createWindow();
+        }
 });
 
 // App Initialization
 let mainWindow;
 
 app.whenReady().then(() => {
-	const config = loadConfig();
+        const config = loadConfig();
 
-	mainWindow = createWindow(config);
-	global.mainWindow = mainWindow;
+        mainWindow = createWindow(config);
+        global.mainWindow = mainWindow;
 
-	const listenAlong = config?.alpha?.listenAlong;
-	let targetUrl = "https://music.yandex.ru/";
+        const listenAlong = config?.alpha?.listenAlong;
+        let targetUrl = "https://music.yandex.ru/";
 
-	if (listenAlong?.enable) {
-		const params = new URLSearchParams({
-			__blackIsland: listenAlong.blackIsland || "",
-			__wss: listenAlong.host
-				? `${listenAlong.host}:${listenAlong.port || ""}`
-				: "",
-			__room: listenAlong.roomId || "",
-			__clientId: listenAlong.clientId || "",
-			__avatarUrl: listenAlong.avatarUrl || "",
-		});
+        if (listenAlong?.enable) {
+                const params = new URLSearchParams({
+                        __blackIsland: listenAlong.blackIsland || "",
+                        __wss: listenAlong.host
+                                ? `${listenAlong.host}:${listenAlong.port || ""}`
+                                : "",
+                        __room: listenAlong.roomId || "",
+                        __clientId: listenAlong.clientId || "",
+                        __avatarUrl: listenAlong.avatarUrl || "",
+                });
 
-		targetUrl = "https://music.yandex.ru/?" + params.toString();
-	}
+                targetUrl = "https://music.yandex.ru/?" + params.toString();
+        }
 
-	// Splash screen or direct load
-	if (
-		config.launchSettings?.splashScreen &&
-		!config.launchSettings?.startMinimized &&
-		!config.launchSettings?.loaderWindow
-	) {
-		setupSplashScreen(mainWindow, targetUrl);
-	} else {
-		mainWindow.loadURL(targetUrl);
-	}
+        // Splash screen or direct load
+        if (
+                config.launchSettings?.splashScreen &&
+                !config.launchSettings?.startMinimized &&
+                !config.launchSettings?.loaderWindow
+        ) {
+                setupSplashScreen(mainWindow, targetUrl);
+        } else {
+                mainWindow.loadURL(targetUrl);
+        }
 
-	// Addons store page
-	if (config.programSettings?.addons?.enable) {
-		setupStorePage();
-	}
+        // Addons store page
+        if (config.programSettings?.addons?.enable) {
+                setupStorePage();
+        }
 
-	// IPC
-	setupIpcEvents(mainWindow);
+        // IPC
+        setupIpcEvents(mainWindow);
 
-	// Tray
-	createTray(
-		getAppIcon(config?.experiments),
-		mainWindow,
-		nextMusicDirectory,
-		addonsDirectory,
-		configFilePath,
-		config,
-	);
+        // Tray
+        createTray(
+                getAppIcon(config?.experiments),
+                mainWindow,
+                nextMusicDirectory,
+                addonsDirectory,
+                configFilePath,
+                config,
+        );
 
-	initUpdater(config);
+        initUpdater(config);
 
-	// OBS widget
-	if (config?.programSettings?.obsWidget) {
-		startServer({ port: 4091 });
-	}
+        // OBS widget
+        if (config?.programSettings?.obsWidget) {
+                startServer({ port: 4091 });
+        }
 
-	// Discord rich presence - only start if enabled
-	if (config.programSettings?.richPresence?.enable) {
-		initWS();
-
-		checkGitHubStar()
-			.then(({ hasStarred }) => {
-				presenceService(hasStarred);
-			})
-			.catch(() => {
-				presenceService(false);
-			});
-	}
+        // Discord rich presence - only start if enabled
+        if (config.programSettings?.richPresence?.enable) {
+                initWS();
+                presenceService();
+        }
 });

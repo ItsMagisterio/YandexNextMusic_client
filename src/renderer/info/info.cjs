@@ -4,26 +4,24 @@ const { shell } = require("electron");
 const { version: currentPkgVersion } = require("../../../package.json");
 
 const CURRENT_VERSION = currentPkgVersion.startsWith("v")
-	? currentPkgVersion
-	: `v${currentPkgVersion}`;
+        ? currentPkgVersion
+        : `v${currentPkgVersion}`;
 
 document.querySelector(".version").textContent = CURRENT_VERSION;
-const title = `Next Music ${CURRENT_VERSION} By Diramix`;
+const title = `Yandex Next ${CURRENT_VERSION} By magister1o`;
 document.querySelector(".nm_title").textContent = title;
 
 // Buttons
 const buttonActions = {
-	women: () => {
-		const nya = new Audio("../../assets/info-page/nya.mp3");
-		nya.play();
-		shell.openExternal("https://diram1x.ru");
-	},
-	discordBtn: () => shell.openExternal("https://discord.gg/ky6bcdy7KA"),
-	githubBtn: () => shell.openExternal("https://github.com/diramix"),
-	boostyBtn: () => shell.openExternal("https://boosty.to/diramix"),
-	youtubeBtn: () => shell.openExternal("https://www.youtube.com/@Diram1x"),
+        women: () => {
+                shell.openExternal("https://github.com/ItsMagisterio");
+        },
+        discordBtn: () => shell.openExternal("https://github.com/ItsMagisterio"),
+        githubBtn: () => shell.openExternal("https://github.com/ItsMagisterio"),
+        boostyBtn: () => shell.openExternal("https://github.com/ItsMagisterio"),
+        youtubeBtn: () => shell.openExternal("https://github.com/ItsMagisterio"),
 };
 
 Object.entries(buttonActions).forEach(([id, action]) => {
-	document.getElementById(id).addEventListener("click", action);
+        document.getElementById(id).addEventListener("click", action);
 });

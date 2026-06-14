@@ -22,74 +22,59 @@ const ICON_RESTORE = `<svg width="10" height="10" viewBox="0 0 10 10" fill="none
 
 
 export function toggleMaximize() {
-	window.electronAPI?.toggleMaximize?.();
+        window.electronAPI?.toggleMaximize?.();
 }
 
 window.electronAPI?.onMaximizeChange?.((maximized) => {
-	state.isMaximized = maximized;
-	const btn = document.getElementById("tb-maximize");
-	if (btn) btn.innerHTML = maximized ? ICON_RESTORE : ICON_EXPAND;
+        state.isMaximized = maximized;
+        const btn = document.getElementById("tb-maximize");
+        if (btn) btn.innerHTML = maximized ? ICON_RESTORE : ICON_EXPAND;
 });
 
 async function init() {
-	const [
-		cfg,
-		strings,
-		langList,
-		addonExps,
-		builtinExps,
-		starResult,
-		tokenResult,
-	] = await Promise.all([
-		window.electronAPI?.loadConfig().catch(() => ({})),
-		window.electronAPI?.loadLangStrings?.().catch(() => null),
-		window.electronAPI?.getLangList?.().catch(() => []),
-		window.electronAPI?.getAddonExperiments?.().catch(() => []),
-		window.electronAPI?.getBuiltinExperiments?.().catch(() => ({})),
-		window.electronAPI
-			?.getGitHubStarStatus?.()
-			.catch(() => ({ hasStarred: false })),
-		window.electronAPI
-			?.getGitHubHasToken?.()
-			.catch(() => ({ hasToken: false })),
-	]);
+        const [
+                cfg,
+                strings,
+                langList,
+                addonExps,
+                builtinExps,
+        ] = await Promise.all([
+                window.electronAPI?.loadConfig().catch(() => ({})),
+                window.electronAPI?.loadLangStrings?.().catch(() => null),
+                window.electronAPI?.getLangList?.().catch(() => []),
+                window.electronAPI?.getAddonExperiments?.().catch(() => []),
+                window.electronAPI?.getBuiltinExperiments?.().catch(() => ({})),
+        ]);
 
-	state.CONFIG = cfg || {};
-	state.ORIGINAL_CONFIG = JSON.parse(JSON.stringify(state.CONFIG));
-	state.STRINGS = strings || {};
-	state.LANGLIST = Array.isArray(langList) ? langList : [];
-	state.ADDON_EXPERIMENTS = Array.isArray(addonExps) ? addonExps : [];
-	state.BUILTIN_EXPERIMENTS =
-		builtinExps && typeof builtinExps === "object" ? builtinExps : {};
-	state.HAS_STARRED = starResult?.hasStarred ?? false;
-	state.TOKEN_EXPIRED = starResult?.tokenExpired ?? false;
+        state.CONFIG = cfg || {};
+        state.ORIGINAL_CONFIG = JSON.parse(JSON.stringify(state.CONFIG));
+        state.STRINGS = strings || {};
+        state.LANGLIST = Array.isArray(langList) ? langList : [];
+        state.ADDON_EXPERIMENTS = Array.isArray(addonExps) ? addonExps : [];
+        state.BUILTIN_EXPERIMENTS =
+                builtinExps && typeof builtinExps === "object" ? builtinExps : {};
 
-	if (!state.CONFIG.github) state.CONFIG.github = {};
-	state.CONFIG.github.accessToken = tokenResult?.hasToken
-		? "__has_token__"
-		: null;
+        refresh();
 
-	refresh();
+        window.electronAPI?.onLanguageChange?.((newStrings) => {
+                state.STRINGS = newStrings || {};
+                refresh();
+        });
 
-	window.electronAPI?.onLanguageChange?.((newStrings) => {
-		state.STRINGS = newStrings || {};
-		refresh();
-	});
-
-	window.electronAPI
-		?.getVersions?.()
-		.then((versions) => {
-			if (!versions) return;
-			const set = (id, val) => {
-				const el = document.getElementById(id);
-				if (el && val) el.textContent = val;
-			};
-			set("ver-app", versions.app);
-			set("ver-electron", versions.electron);
-			set("ver-chromium", versions.chromium);
-			set("ver-node", versions.node);
-		})
-		.catch(() => {});
+        window.electronAPI
+                ?.getVersions?.()
+                .then((versions) => {
+                        if (!versions) return;
+                        const set = (id, val) => {
+                                const el = document.getElementById(id);
+                                if (el && val) el.textContent = val;
+                        };
+                        set("ver-app", versions.app);
+                        set("ver-electron", versions.electron);
+                        set("ver-chromium", versions.chromium);
+                        set("ver-node", versions.node);
+                })
+                .catch(() => {});
 }
 
 // Expose to HTML onclick attributes

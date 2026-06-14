@@ -3,7 +3,7 @@ import "./style.scss";
 const require = globalThis.require;
 
 if (!require) {
-	throw new Error("Electron require is not available in info_v2 module");
+        throw new Error("Electron require is not available in info_v2 module");
 }
 
 const { shell, ipcRenderer } = require("electron");
@@ -14,64 +14,64 @@ const initPayload = await ipcRenderer.invoke("info-v2:get-init-data");
 
 const buttonsRow = document.querySelector(".buttons_row");
 if (buttonsRow && !initPayload.hasStarred) {
-	const btn = document.createElement("button");
-	btn.className = "btn";
-	btn.id = "githubRepoBtn";
-	btn.setAttribute("data-i18n", "info.titleBarStarBtnText");
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.id = "githubRepoBtn";
+        btn.setAttribute("data-i18n", "info.titleBarStarBtnText");
 
-	buttonsRow.prepend(btn);
+        buttonsRow.prepend(btn);
 }
 
 let currentLang = {};
 let languagesDirectory = null;
 
 function loadLanguage(langCode) {
-	if (!languagesDirectory) return false;
+        if (!languagesDirectory) return false;
 
-	const filePath = path.join(languagesDirectory, `${langCode}.json`);
+        const filePath = path.join(languagesDirectory, `${langCode}.json`);
 
-	if (fs.existsSync(filePath)) {
-		try {
-			currentLang = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-			return true;
-		} catch (error) {
-			console.error("[InfoV2] Failed to parse language file:", filePath, error);
-		}
-	}
+        if (fs.existsSync(filePath)) {
+                try {
+                        currentLang = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+                        return true;
+                } catch (error) {
+                        console.error("[InfoV2] Failed to parse language file:", filePath, error);
+                }
+        }
 
-	if (langCode !== "en") {
-		return loadLanguage("en");
-	}
+        if (langCode !== "en") {
+                return loadLanguage("en");
+        }
 
-	currentLang = {};
-	return false;
+        currentLang = {};
+        return false;
 }
 
 function t(key, vars = {}) {
-	const parts = key.split(".");
-	let value = currentLang;
+        const parts = key.split(".");
+        let value = currentLang;
 
-	for (const part of parts) {
-		if (value && typeof value === "object" && part in value) {
-			value = value[part];
-		} else {
-			return key;
-		}
-	}
+        for (const part of parts) {
+                if (value && typeof value === "object" && part in value) {
+                        value = value[part];
+                } else {
+                        return key;
+                }
+        }
 
-	if (typeof value !== "string") return key;
+        if (typeof value !== "string") return key;
 
-	return value.replace(/\{(\w+)\}/g, (_, name) =>
-		name in vars ? vars[name] : `{${name}}`,
-	);
+        return value.replace(/\{(\w+)\}/g, (_, name) =>
+                name in vars ? vars[name] : `{${name}}`,
+        );
 }
 
 function applyTranslations() {
-	document.querySelectorAll("[data-i18n]").forEach((el) => {
-		const key = el.getAttribute("data-i18n");
-		const vars = el.dataset.i18nVars ? JSON.parse(el.dataset.i18nVars) : {};
-		el.textContent = t(key, vars);
-	});
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+                const key = el.getAttribute("data-i18n");
+                const vars = el.dataset.i18nVars ? JSON.parse(el.dataset.i18nVars) : {};
+                el.textContent = t(key, vars);
+        });
 }
 
 const currentVersion = ipcRenderer.sendSync("get-app-version");
@@ -79,34 +79,27 @@ const currentVersion = ipcRenderer.sendSync("get-app-version");
 document.querySelector(".version").textContent = currentVersion;
 
 ipcRenderer.on("change-language", (_, newLangCode) => {
-	if (!languagesDirectory) return;
-	loadLanguage(newLangCode);
-	applyTranslations();
+        if (!languagesDirectory) return;
+        loadLanguage(newLangCode);
+        applyTranslations();
 });
 
 document.getElementById("btn-close").onclick = () =>
-	ipcRenderer.send("close-window");
+        ipcRenderer.send("close-window");
 
 const buttonActions = {
-	women: () => {
-		const nya = new Audio("../../assets/info-page/nya.mp3");
-		nya.play();
-		shell.openExternal("https://diram1x.ru");
-	},
-	githubBtn: () => shell.openExternal("https://github.com/diramix"),
-	discordBtn: () => shell.openExternal("https://discord.gg/ky6bcdy7KA"),
-	twitterBtn: () => shell.openExternal("https://x.com/Diram1x"),
-	boostyBtn: () => shell.openExternal("https://boosty.to/diramix"),
-	youtubeBtn: () => shell.openExternal("https://www.youtube.com/@Diram1x"),
-
-	...(!initPayload.hasStarred && {
-		githubRepoBtn: () =>
-			shell.openExternal("https://github.com/Web-Next-Music/Next-Music-Client"),
-	}),
+        women: () => {
+                shell.openExternal("https://github.com/ItsMagisterio");
+        },
+        githubBtn: () => shell.openExternal("https://github.com/ItsMagisterio"),
+        discordBtn: () => shell.openExternal("https://github.com/ItsMagisterio"),
+        twitterBtn: () => shell.openExternal("https://github.com/ItsMagisterio"),
+        boostyBtn: () => shell.openExternal("https://github.com/ItsMagisterio/YandexNextMusic_client"),
+        youtubeBtn: () => shell.openExternal("https://github.com/ItsMagisterio/YandexNextMusic_client"),
 };
 
 Object.entries(buttonActions).forEach(([id, action]) => {
-	document.getElementById(id)?.addEventListener("click", action);
+        document.getElementById(id)?.addEventListener("click", action);
 });
 
 languagesDirectory = initPayload.languagesDirectory;
