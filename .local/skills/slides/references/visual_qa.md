@@ -33,14 +33,14 @@ Text uses viewport-relative units (`vw`/`vh`) so it scales with the slide, never
 **Common pitfalls.** These break text scaling. A few have legitimate uses outside text sizing — use judgment.
 
 - **Hardcoded `px` / `pt` / `rem` for body and headline text.** Use `vw` so text scales with the slide. Pixel values are fine for things like 1px borders, small fixed icon sizes, or other non-text decorative dimensions where consistent visual weight matters.
-- **`clamp(...)` with `px` caps on text** (e.g. `clamp(16px, 2vw, 24px)`). On the 1920x1080 export, the px ceiling collapses the text below the viewport-relative size you intended. Prefer pure `vw` for text on slides — the viewer already handles fitting the deck to the user's screen.
+- **`clamp(...)` with `px` caps on text** (e.g. `clamp(16px, 3vw, 24px)`). On the 1920x1080 export, the px ceiling collapses the text below the viewport-relative size you intended. Prefer pure `vw` for text on slides — the viewer already handles fitting the deck to the user's screen.
 - **`transform: scale(...)` on a slide root or on a text container.** The viewer applies its own transform to fit 1920x1080 to the user's screen; stacking another scale on top compounds it. Decorative `scale` on a non-text element (logo, illustration, icon) is fine.
 - **`overflow: scroll` to "hide" text that overflows the slide frame.** Slides don't scroll. If body text overflows, fix the content. Internal scroll on table/chart containers (per the `<constraints>` allowed-interactive list) is fine — the rule is no scroll on the *slide* itself.
 - **`text-overflow: ellipsis` to truncate slide copy.** Truncated headlines or bullets are a bug, not a feature. Either shorten the text or split the slide. (Ellipsis on data-table cells with bounded width is OK.)
 - **`zoom: ...` on slide content.** Same compounding issue as `transform: scale`, and it doesn't translate to the PPTX export pipeline.
 - **CSS container queries (`cqw`/`cqh`) for text sizing.** The export pipeline doesn't always establish a containment context, so the unit can silently fall back to `0`. Stick to `vw`/`vh` for text.
 
-**Floor:** at the 1920x1080 export size, standard body text must render at `2vw+` (aim for `2-2.5vw`). `1.5vw` is the absolute floor for captions, footnotes, attributions, and other detail text only; nothing on the slide may render below `1.5vw`. Read the smallest `vw` value across all slides — if any body text is below `2vw`, or any text at all is below `1.5vw`, raise it.
+**Floor:** at the 1920x1080 export size, standard body text must render at `3vw+` (aim for `3-3.5vw`). `2.2vw` is the absolute floor for captions, footnotes, attributions, and other detail text only; nothing on the slide may render below `2.2vw`. Read the smallest `vw` value across all slides — if any body text is below `3vw`, or any text at all is below `2.2vw`, raise it. One documented exception: professional-mode decks (`professional_slides.md`) may run body bullets down to `2.6vw`; the `2.2vw` absolute floor still applies everywhere.
 
 **Long-string trap:** an unbroken word (URL, hash, ID) at large `vw` sizes will overflow horizontally. Break with `overflow-wrap: anywhere` or shorten the string — do not let it punch through the 1920px width.
 
@@ -54,7 +54,7 @@ Imagine squinting at each slide. Can you still see the visual hierarchy? If ever
 
 ### Readability test
 
-Is all body text at least `2vw`, with only captions, footnotes, attributions, or detail text allowed down to `1.5vw`? Could someone in the back row of a conference room read every word? If any body text falls below `2vw`, or anything at all falls below `1.5vw`, raise it.
+Is all body text at least `3vw` (`2.6vw` for professional-mode decks per `professional_slides.md`), with only captions, footnotes, attributions, or detail text allowed down to `2.2vw`? Could someone in the back row of a conference room read every word? If any body text falls below that floor, or anything at all falls below `2.2vw`, raise it.
 
 ### Consistency test
 

@@ -310,7 +310,7 @@ Use a variety of slide layouts to keep the deck visually engaging. Match layouts
 - **Content Slide (Title + Bullets)**: Big headline, then 3-4 concise bullets. If it needs more, split it.
 - **Two-Column**: Headline, then two columns of content below. Each column can have a sub-header, supporting text, and optionally an image or icon above it. Great for comparisons, before/after, pros/cons.
 - **Three-Column**: Headline, then three columns. Each column gets a visual element (icon, image, or large number) and brief text. Good for features, process steps, team members.
-- **Big Stat / Data Slide**: A single large number or metric as the hero element (displayed at 8-12vw). Supporting context text at smaller scale. The stat is the slide -- everything else is subordinate.
+- **Big Stat / Data Slide**: A single large number or metric as the hero element (displayed at 9-13vw). Supporting context text at smaller scale. The stat is the slide -- everything else is subordinate.
 - **Image-Feature Split**: Image on one half, text on the other half. Works for product shots, team photos, case studies. Give the image at least 45-55% of the slide width.
 - **Quote / Emphasis**: Centered pull quote at large scale. Attribution below in smaller text. Can use a subtle background image at low opacity for depth. Great for customer testimonials, key insights, or dramatic statements.
 - **Section Divider**: Bold text, strong accent color, signals a topic change. Minimal content -- just the section title and maybe a one-line subtitle. Gives the viewer a visual break and resets attention.
@@ -331,10 +331,10 @@ Typography is the backbone of slide design. Get this right and the deck is 80% t
 
 **Hierarchy:**
 
-1. **Display / Hero**: Headlines, big stats, section titles. Use your display font at large scale (4-7vw for main headlines). Bold or black weight. Tight letter-spacing (`tracking-tighter` or `tracking-tight`).
-2. **Subheading**: Slide subtitles, column headers. Same display font at medium scale (2-3vw), or body font at bold weight.
-3. **Body**: Supporting text, bullet points, descriptions. Body font at readable scale (2-2.5vw). Regular or medium weight.
-4. **Caption / Detail**: Attribution, footnotes, fine print. Body font at small scale (1.5vw — the floor; nothing renders below it). Light or regular weight. Lower opacity (60-80%).
+1. **Display / Hero**: Headlines, big stats, section titles. Use your display font at large scale (5-8vw for main headlines). Bold or black weight. Tight letter-spacing (`tracking-tighter` or `tracking-tight`).
+2. **Subheading**: Slide subtitles, column headers. Same display font at medium scale (3.2-3.8vw), or body font at bold weight.
+3. **Body**: Supporting text, bullet points, descriptions. Body font at readable scale (3-3.5vw). Regular or medium weight.
+4. **Caption / Detail**: Attribution, footnotes, fine print. Body font at small scale (2.2vw — the floor; nothing renders below it). Light or regular weight. Lower opacity (60-80%).
 
 **Rules:**
 
@@ -346,14 +346,16 @@ Typography is the backbone of slide design. Get this right and the deck is 80% t
 
 | Element | Size | Weight |
 | --- | --- | --- |
-| Hero headline | 5-7vw | Bold/Black |
-| Slide headline | 3-4.5vw | Bold |
-| Subheading | 2-3vw | Semibold |
-| Body text | 2-2.5vw | Regular/Medium |
-| Caption | 1.5vw | Regular/Light |
-| Big stat number | 8-12vw | Black |
+| Hero headline | 6-8vw | Bold/Black |
+| Slide headline | 4-5.5vw | Bold |
+| Subheading | 3.2-3.8vw | Semibold |
+| Body text | 3-3.5vw | Regular/Medium |
+| Caption | 2.2vw | Regular/Light |
+| Big stat number | 9-13vw | Black |
 
-**Minimum readable size at export.** `1.5vw` is the floor for captions/footnotes only. Body copy must be `2vw+` (aim 2-2.5vw). If copy does not fit at those sizes, split slides or ask before summarizing/using notes. See `./references/visual_qa.md` for forbidden patterns (no `clamp()` with px caps, `transform: scale`, hardcoded `px` font sizes).
+These sizes are deliberately large: decks get projected in conference rooms, and text that looks fine on a laptop is unreadable from the back row. `3vw` body text is roughly the classic 30pt presentation minimum.
+
+**Minimum readable size at export.** `2.2vw` is the floor for captions/footnotes only. Body copy must be `3vw+` (aim 3-3.5vw). If copy does not fit at those sizes, split slides or ask before summarizing/using notes. See `./references/visual_qa.md` for forbidden patterns (no `clamp()` with px caps, `transform: scale`, hardcoded `px` font sizes).
 
 **Font selection:**
 
@@ -485,7 +487,7 @@ The deeper text-scaling forbidden patterns (`clamp` with px caps, `transform: sc
 
 **Typography:**
 
-- **Body text target: 2vw+. The 1.5vw rule is the floor, not the goal.** Aim for 2–2.5vw on standard body copy, and scale headlines and hero stats well above that. Captions and footnotes are the only place 1.5vw is acceptable; nothing should ever fall below it.
+- **Body text target: 3vw+. The 2.2vw rule is the floor, not the goal.** Aim for 3–3.5vw on standard body copy, and scale headlines and hero stats well above that. Captions and footnotes are the only place 2.2vw is acceptable; nothing should ever fall below it.
 - **Back-of-the-room test.** Decks are presented on projectors and conference-room TVs. Before finishing a slide, ask: could someone standing at the back of the room read this? If text would shrink to an unreadable size on a projected 16:9 frame, increase it — even if that means cutting copy or splitting the slide. Sizing layout to fit the text is correct; shrinking text to fit the layout is not.
 - Max 6 lines of text per slide and no paragraphs; if you have more to say, split slides. Use notes only when asked.
 - Max 2 fonts (one display + one body)

@@ -149,6 +149,9 @@ export const injectList = [
                 condition: (config) => config?.programSettings?.obsWidget,
         },
         {
+                file: "settingsButton.js",
+        },
+        {
                 file: "siteRPCServer.js",
                 condition: (config) =>
                         config?.programSettings?.richPresence?.enable !== false,

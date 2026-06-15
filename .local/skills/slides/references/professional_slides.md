@@ -58,9 +58,9 @@ Pick ONE grammatical form and hold it — past-tense declarative (`Revenue grew 
 
 A professional content slide has four zones:
 
-1. **Action title** at the top — left-aligned, bold, ~2.5vw. This is the slide's claim.
-2. **Body** — the supporting evidence: 3–6 bullets, OR a chart with annotations, OR a 2×N table, OR a comparison framework. ~1.8–2.2vw body text.
-3. **Source / footnote** at the bottom-left — data sources, "as of" dates, sample size, methodology caveats. ~1.2–1.4vw, muted (60% opacity).
+1. **Action title** at the top — left-aligned, bold, ~3.2vw. This is the slide's claim.
+2. **Body** — the supporting evidence: 3–6 bullets, OR a chart with annotations, OR a 2×N table, OR a comparison framework. ~2.6–3vw body text.
+3. **Source / footnote** at the bottom-left — data sources, "as of" dates, sample size, methodology caveats. ~2.2–2.4vw, muted (60% opacity).
 4. **Slide number + deck name** at the bottom-right — same scale as the source line. Optional but recommended for IR / board decks.
 
 Hold this anatomy across every content slide. Variation comes from the body zone, not from moving the title around. Footer height, slide-counter position, and source-line wrapping behavior must be identical on every slide — pick one wrapping policy (always one line, or always two) and hold it, anchor the slide counter to the footer's bottom baseline (never to the top of a wrapping source line), and keep the counter format and denominator (= total content-slide count) identical across the deck.
@@ -123,10 +123,11 @@ Greens and reds are acceptable in financial charts (up/down, gain/loss) but use 
 
 ## Typography
 
-- **Headlines / action titles:** 2.2–2.8vw, bold, left-aligned.
-- **Body bullets:** 1.8–2.2vw, regular. Aim for the high end of this range — body text on professional decks is read, not glanced at.
-- **Sub-headers / column heads:** 1.6–1.8vw, bold.
-- **Source / footnote:** 1.2–1.4vw, regular, 60% opacity.
+- **Headlines / action titles:** 3–3.6vw, bold, left-aligned.
+- **Body bullets:** 2.6–3vw, regular. Aim for the high end of this range — these decks get presented in conference rooms, and body text must be readable from the back row.
+- **Sub-headers / column heads:** 2.3–2.6vw, bold.
+- **Source / footnote:** 2.2–2.4vw, regular, 60% opacity.
+- These ranges are intentionally denser than the default deck scale, and they are the documented exception to the visual-QA body floor: professional body bullets may run down to 2.6vw (never lower), and nothing on any slide renders below 2.2vw.
 - **Line height:** 1.35–1.45 on body bullets — looser than the slide-skill default. Dense decks need breathing room within lines, not between sections.
 - **No all-caps body text.** All-caps is acceptable on a single label (`CONFIDENTIAL`, section dividers) and nothing else.
 - **No italics for emphasis.** Bold or restate. Italics are for titles of works only.
@@ -137,7 +138,7 @@ These are the AI-deck patterns that read as slop the moment a serious reviewer o
 
 - **Hero gradients** behind text. No purple-to-pink, no blue-to-cyan, no animated mesh. Solid backgrounds only.
 - **Glassmorphism**, frosted blur cards, soft drop shadows on every container. Decorative depth has no place here.
-- **Emoji or pictograph icons** in slide bodies (📈 🎯 ✨ 🚀 💡). Use a sparse icon set (`lucide-react`) when an icon genuinely labels a thing — `lucide-react` icons in muted accent color, ~1.6vw, max one icon per bullet. Default to none.
+- **Emoji or pictograph icons** in slide bodies (📈 🎯 ✨ 🚀 💡). Use a sparse icon set (`lucide-react`) when an icon genuinely labels a thing — `lucide-react` icons in muted accent color, ~2.2vw, max one icon per bullet. Default to none.
 - **Three-feature triplets with circular icons** above each. This is the AI-generated landing-page layout; it has nothing to do with a board deck.
 - **Numbered "big stat" walls** ("3X faster", "10X cheaper", "95% retention") with no chart, no source, and no comparison baseline. A stat without a source line is a guess.
 - **Punchline titles** ("The moment everything changed", "Why this matters", "Rethinking how we…"). Action titles only.
@@ -185,5 +186,5 @@ Walk every slide and verify:
 6. **Consistency test.** Same fonts, same background, same title position on every slide. Footer height, slide-counter position, and source-line wrapping must be identical across the deck — fix any slide where the counter orphans on a wrap or the footer height drifts. Variation in body content only.
 7. **Boardroom test.** Imagine this deck printed and handed to a non-technical board member. Could they read it without the speaker? If no, the deck isn't professional yet.
 
-Only when all seven pass do you tell the user the deck is ready. Then run the standard `references/visual-qa.md` checklist on top — the platform invariants apply here too.
+Only when all seven pass do you tell the user the deck is ready. Then run the standard `references/visual_qa.md` checklist on top — the platform invariants apply here too.
 </professional_slides>

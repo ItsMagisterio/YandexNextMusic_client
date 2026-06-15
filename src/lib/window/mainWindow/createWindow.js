@@ -9,6 +9,7 @@ import {
 import { resolveBuiltinExperiments } from "../../builtinExperiments.js";
 import { getConfig } from "../../configManager.js";
 import { getAppIcon } from "../../../config.js";
+import { createSettingsWindow } from "../settingsWindow/createSettingsWindow.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import injector from "../../injector.js";
@@ -30,6 +31,10 @@ const apiFunctionsOrder = [
         "customTracks",
         "playerColor",
 ];
+
+if (!ipcMain.listenerCount("nmc:open-settings")) {
+        ipcMain.on("nmc:open-settings", () => createSettingsWindow());
+}
 
 if (!ipcMain.listenerCount("nmc:get-experiments")) {
         ipcMain.on("nmc:get-experiments", (event) => {
