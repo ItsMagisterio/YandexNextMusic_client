@@ -149,6 +149,12 @@ export const injectList = [
                 condition: (config) => config?.programSettings?.obsWidget,
         },
         {
+                file: "hideNavItems.js",
+        },
+        {
+                file: "logo.js",
+        },
+        {
                 file: "settingsButton.js",
         },
         {

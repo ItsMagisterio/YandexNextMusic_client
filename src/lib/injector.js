@@ -60,11 +60,17 @@ export default function injector(mainWindow, config) {
                         "../../node_modules/lamejs/lame.all.js",
                 );
 
+                const assetsDir = isDev
+                        ? path.resolve(__dirname, "../../src/assets")
+                        : path.join(__dirname, "../assets");
+                const assetsDirUrl = "file://" + assetsDir.replace(/\\/g, "/");
+
                 // Build a single batch script (one executeJavaScript round-trip instead
                 // of one per file). Each fragment is wrapped in try/catch so a failure
                 // in one injected file can't abort the rest of the batch.
                 const fragments = [
                         `window.__APP_VERSION__ = ${JSON.stringify(`Yandex Next/${app.getVersion()}`)};`,
+                        `window.__NMC_ASSETS_DIR__ = ${JSON.stringify(assetsDirUrl)};`,
                 ];
                 const injected = [];
 
