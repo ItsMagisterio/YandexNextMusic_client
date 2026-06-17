@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="7f44412f-e202-4ee4-aeda-a19e6ec6773d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.canvas/assets/asset_490744807.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.canvas/assets/asset_971408820.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/Pasted--div-class-VibePage-playerBlock-b6ZRu-bis-skin-checked-_1781733550783.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/Pasted--div-class-ggP7WX2-erziDHFOo32s-bis-skin-checked-1-butt_1781736142074.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781732800716.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781732875020.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781733246464.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781733865313.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781734218066.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781734228752.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781735132246.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781735367060.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781735499669.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781735606767.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781735769109.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781736039548.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781736356026.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/attached_assets/image_1781736572410.png" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 3
+}]]></component>
+  <component name="ProjectId" id="3FHfTpl9FFcrYuJhqYvJVE3S9QM" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "nodejs_package_manager_path": "pnpm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.25134.95" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7f44412f-e202-4ee4-aeda-a19e6ec6773d" name="Changes" comment="" />
+      <created>1781736927552</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1781736927552</updated>
+      <workItem from="1781736929710" duration="243000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

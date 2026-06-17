@@ -1,0 +1,12 @@
+[class*="WordsCard_content"] {
+    display: none !important;
+}
+
+[class*="WordsCard_root"] {
+    justify-content: center !important;
+    pointer-events: none !important;
+}
+
+[class*="WordsCard_badge"] {
+    margin: 0 auto !important;
+}

@@ -106,6 +106,9 @@ export const injectList = [
                 condition: (config) => config?.programSettings?.alwaysExpandedPlayer,
         },
         {
+                file: "hideAiHintText.js",
+        },
+        {
                 file: "antiSelect.css",
                 condition: (config) => config?.programSettings?.antiSelect,
         },
