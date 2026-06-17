@@ -1,0 +1,62 @@
+"use strict";
+
+const { contextBridge, ipcRenderer } = require("electron");
+
+if (process.argv.includes("--nmc-condemned")) {
+        const applyClass = () => document.documentElement.classList.add("condemned");
+
+        if (document.documentElement) {
+                applyClass();
+        } else {
+                const observer = new MutationObserver(() => {
+                        if (document.documentElement) {
+                                observer.disconnect();
+                                applyClass();
+                        }
+                });
+                observer.observe(document, { childList: true });
+        }
+}
+
+contextBridge.exposeInMainWorld("electronAPI", {
+        // Versions & Config
+        getVersions: () => ipcRenderer.invoke("settings:get-versions"),
+        loadConfig: () => ipcRenderer.invoke("settings:load-config"),
+        saveConfig: (config) => ipcRenderer.invoke("settings:save-config", config),
+
+        // Addons & Experiments
+        getAddonExperiments: () =>
+                ipcRenderer.invoke("settings:get-addon-experiments"),
+        getBuiltinExperiments: () =>
+                ipcRenderer.invoke("settings:get-builtin-experiments"),
+
+        // Window controls
+        toggleMaximize: () => ipcRenderer.send("settings:toggle-maximize"),
+        onMaximizeChange: (cb) => {
+                ipcRenderer.removeAllListeners("settings:maximize-changed");
+                ipcRenderer.on("settings:maximize-changed", (_event, isMaximized) =>
+                        cb(isMaximized),
+                );
+        },
+        minimizeWindow: () => ipcRenderer.send("settings:minimize"),
+        closeWindow: () => ipcRenderer.send("settings:close"),
+        restartApp: () => ipcRenderer.send("settings:restart-app"),
+
+        // Addons folder
+        openAddonsFolder: () => ipcRenderer.send("settings:open-addons-folder"),
+
+        // Language
+        loadLangStrings: () => ipcRenderer.invoke("settings:load-lang-strings"),
+        getLangList: () => ipcRenderer.invoke("settings:get-lang-list"),
+        setLanguage: (langCode) =>
+                ipcRenderer.send("settings:set-language", langCode),
+        onLanguageChange: (cb) => {
+                ipcRenderer.removeAllListeners("settings:language-changed");
+                ipcRenderer.on("settings:language-changed", (_event, strings) =>
+                        cb(strings),
+                );
+        },
+
+        // Shell
+        openExternal: (url) => ipcRenderer.invoke("settings:open-external", url),
+});

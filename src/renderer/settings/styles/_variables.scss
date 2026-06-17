@@ -1,0 +1,59 @@
+@use "sass:color";
+
+@function mdui-rgb($c) {
+	@return #{color.channel($c, "red", $space: rgb)}
+		#{color.channel($c, "green", $space: rgb)}
+		#{color.channel($c, "blue", $space: rgb)};
+}
+
+// Accent
+$accent: #00c9c0;
+
+// Lines / dividers
+$line: rgba(255, 255, 255, 0.07);
+
+// Background and surfaces
+$bg: #000000;
+$bg2: #000000;
+$bg-soft: #171719;
+$panel: #0c0c0e;
+$tile-hover: #171719;
+
+// Input fields
+$input-bg: $bg-soft;
+
+// Text
+$text: #e2ddea;
+$muted: #8d8d92;
+
+$l-bg: #f3f3f4;
+$l-bg2: #f3f3f4;
+$l-bg-soft: #eaeeee;
+$l-panel: #fbfbfb;
+$l-tile-hover: #f3f3f3;
+$l-input-bg: $l-bg-soft;
+$l-text: #1a2120;
+$l-muted: #5c6362;
+$l-line: rgba(0, 0, 0, 0.08);
+$l-tb-btn-hover: rgba(0, 0, 0, 0.06);
+
+// Semantic colors
+$danger: #ef4444;
+$success: #2bfe8f;
+$warning: #e3a000;
+
+// Experiment tags
+$tag-addon: #e3b341;
+$tag-builtin: #2bfef5;
+$tag-blocked: $danger;
+
+// Titlebar
+$tb-btn-hover: rgba(255, 255, 255, 0.07);
+$close-hover: #f23f42;
+
+//  FONTS
+$r: 12px;
+$row-r: 10px;
+$tb-h: 32px;
+$font-heading-large: "Nunito", "Noto Sans", sans-serif;
+$font-base: "Nunito", "Noto Sans", sans-serif;
