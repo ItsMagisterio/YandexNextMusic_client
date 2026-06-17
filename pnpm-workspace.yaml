@@ -1,9 +1,0 @@
-allowBuilds:
-  "@parcel/watcher": true
-  electron-winstaller: true
-  esbuild: true
-nodeLinker: hoisted
-enableGlobalVirtualStore: false
-verifyDepsBeforeRun: false
-minimumReleaseAgeExclude:
-  - ws@8.21.0
